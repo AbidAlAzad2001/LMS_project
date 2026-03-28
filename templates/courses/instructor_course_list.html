@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}My Courses - Instructor - LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Courses</h1>
+        <a href="{% url 'instructor_course_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+            <i class="fas fa-plus mr-2"></i>Create Course
+        </a>
+    </div>
+    
+    {% if courses %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in courses %}
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-40 object-cover">
+                {% else %}
+                    <div class="w-full h-40 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                    </div>
+                {% endif %}
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        {% if course.is_published %}
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">Published</span>
+                        {% else %}
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">Draft</span>
+                        {% endif %}
+                        <span class="text-sm text-gray-500">{{ course.get_enrolled_count }} students</span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ course.title }}</h3>
+                    <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ course.short_description }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="{% if course.is_free %}text-green-600{% else %}text-gray-900{% endif %} font-medium">
+                            {% if course.is_free %}Free{% else %}৳{{ course.price }}{% endif %}
+                        </span>
+                        <div class="flex space-x-3">
+                            <a href="{% url 'instructor_course_lessons' course.id %}" class="text-green-600 hover:text-green-800" title="Manage Lessons">
+                                <i class="fas fa-list"></i>
+                            </a>
+                            <a href="{% url 'instructor_course_edit' course.id %}" class="text-indigo-600 hover:text-indigo-800" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'instructor_course_delete' course.id %}" class="text-red-600 hover:text-red-800" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+            <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">No courses yet</h2>
+            <p class="text-gray-600 mb-6">Create your first course to start teaching.</p>
+            <a href="{% url 'instructor_course_create' %}" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+                Create Your First Course
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

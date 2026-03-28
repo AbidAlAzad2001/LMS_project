@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if existing_review %}Edit{% else %}Write{% endif %} Review - {{ course.title }} - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{% if existing_review %}Edit Your{% else %}Write a{% endif %} Review</h1>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">{{ course.title }}</p>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Your Rating</label>
+                <div class="flex items-center gap-2">
+                    {% for i in "12345" %}
+                    <button type="button" onclick="setRating({{ i }})" class="text-3xl hover:scale-110 transition rating-btn" data-rating="{{ i }}">
+                        <i class="far fa-star text-gray-300" id="star-{{ i }}"></i>
+                    </button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="rating-input" value="{{ form.rating.value|default:'' }}" required>
+                {% if form.rating.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.rating.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label for="id_comment" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Your Review (optional)</label>
+                <textarea name="comment" id="id_comment" rows="5" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Share your experience with this course...">{{ form.comment.value|default:'' }}</textarea>
+                {% if form.comment.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.comment.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button type="submit" class="px-6 py-3 bg-accent text-white rounded-lg hover:bg-blue-600 transition">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit Review
+                </button>
+                <a href="{% url 'course_detail' course.slug %}" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function setRating(rating) {
+    document.getElementById('rating-input').value = rating;
+    for (let i = 1; i <= 5; i++) {
+        const star = document.getElementById('star-' + i);
+        if (i <= rating) {
+            star.classList.remove('far', 'text-gray-300');
+            star.classList.add('fas', 'text-yellow-400');
+        } else {
+            star.classList.remove('fas', 'text-yellow-400');
+            star.classList.add('far', 'text-gray-300');
+        }
+    }
+}
+
+// Initialize rating on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const initialRating = document.getElementById('rating-input').value;
+    if (initialRating) {
+        setRating(parseInt(initialRating));
+    }
+});
+</script>
+{% endblock %}

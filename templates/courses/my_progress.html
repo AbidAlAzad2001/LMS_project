@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}My Progress - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+            <i class="fas fa-chart-line text-2xl text-white"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">My Progress</h1>
+            <p class="text-gray-600 dark:text-gray-400">Track your learning journey</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-primary to-secondary rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-book text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Enrolled Courses</p>
+                    <p class="text-3xl font-bold">{{ total_courses }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-graduation-cap text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Completed</p>
+                    <p class="text-3xl font-bold">{{ completed_courses }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-play-circle text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Lessons Done</p>
+                    <p class="text-3xl font-bold">{{ completed_lessons }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-accent to-blue-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-percentage text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Overall Progress</p>
+                    <p class="text-3xl font-bold">{{ overall_progress }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <i class="fas fa-chart-pie mr-2 text-accent"></i>Overall Progress
+            </h2>
+            <div class="flex items-center justify-center">
+                <div class="relative" style="width: 200px; height: 200px;">
+                    <canvas id="progressChart"></canvas>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <span class="text-4xl font-bold text-accent">{{ overall_progress }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center gap-6 mt-6">
+                <div class="flex items-center">
+                    <span class="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Completed</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full mr-2"></span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Remaining</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <i class="fas fa-fire mr-2 text-orange-500"></i>Course Statistics
+            </h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-book text-accent"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 dark:text-white">Total Courses</span>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">{{ total_courses }}</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 dark:text-white">Completed</span>
+                    </div>
+                    <span class="text-xl font-bold text-green-500">{{ completed_courses }}</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-spinner text-yellow-500"></i>
+                        </div>
+                        <span class="font-medium text-gray-900 dark:text-white">In Progress</span>
+                    </div>
+                    <span class="text-xl font-bold text-yellow-500">{{ total_courses|add:"-"|add:completed_courses|stringformat:"i" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <i class="fas fa-history mr-2 text-accent"></i>Recent Activity
+        </h2>
+        
+        {% if recent_completions %}
+            <div class="space-y-4">
+                {% for completion in recent_completions %}
+                    <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-check text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900 dark:text-white">{{ completion.lesson.title }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ completion.lesson.course.title }}</p>
+                        </div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ completion.completed_at|date:"M d, Y" }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-clock text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No activity yet</h3>
+                <p class="text-gray-600 dark:text-gray-400">Start learning to see your progress here!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('progressChart').getContext('2d');
+const progressChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Completed', 'Remaining'],
+        datasets: [{
+            data: [{{ overall_progress }}, {{ remaining_progress }}],
+            backgroundColor: ['#22c55e', '#e5e7eb'],
+            borderWidth: 0,
+            cutout: '75%',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { enabled: false }
+        }
+    }
+});
+</script>
+{% endblock %}

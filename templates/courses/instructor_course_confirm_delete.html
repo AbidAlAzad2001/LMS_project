@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Course - LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Delete Course</h1>
+        
+        <p class="text-gray-600 mb-4">
+            Are you sure you want to delete <strong>"{{ course.title }}"</strong>?
+        </p>
+        
+        <p class="text-red-600 text-sm mb-6">
+            <i class="fas fa-exclamation-triangle mr-1"></i>
+            This action cannot be undone. All lessons and enrollments will be permanently deleted.
+        </p>
+        
+        <form method="POST" class="flex justify-between">
+            {% csrf_token %}
+            <a href="{% url 'instructor_course_list' %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                Delete Course
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

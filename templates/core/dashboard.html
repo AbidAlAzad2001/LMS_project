@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome back, {{ user.username }}!</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Continue your learning journey</p>
+        </div>
+        <a href="{% url 'my_progress' %}" class="bg-gradient-to-r from-accent to-blue-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex items-center">
+            <i class="fas fa-chart-line mr-2"></i>View Progress
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-primary to-secondary rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-book text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">My Courses</p>
+                    <p class="text-3xl font-bold">{{ courses_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-graduation-cap text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Completed</p>
+                    <p class="text-3xl font-bold">{{ completed_count|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-play-circle text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Lessons Done</p>
+                    <p class="text-3xl font-bold">{{ lessons_done|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-accent to-blue-600 rounded-xl p-6 text-white shadow-lg">
+            <div class="flex items-center">
+                <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-fire text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-white/80 text-sm">Overall Progress</p>
+                    <p class="text-3xl font-bold">{{ overall_progress|default:"0" }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Continue Learning</h2>
+            <a href="{% url 'my_courses' %}" class="text-accent hover:text-blue-400 font-medium transition">View All</a>
+        </div>
+        
+        {% if enrollments %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for enrollment in enrollments %}
+                    {% with progress=enrollment.get_progress %}
+                    <a href="{% url 'course_learn' enrollment.course.slug %}" class="block p-4 bg-gray-50 dark:bg-gray-700 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                        {% if enrollment.course.thumbnail %}
+                            <img src="{{ enrollment.course.thumbnail.url }}" alt="{{ enrollment.course.title }}" class="w-full h-32 object-cover rounded-lg mb-3">
+                        {% else %}
+                            <div class="w-full h-32 bg-gradient-to-br from-primary to-secondary rounded-lg mb-3 flex items-center justify-center">
+                                <i class="fas fa-image text-2xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        <h3 class="font-semibold text-gray-900 dark:text-white mb-1">{{ enrollment.course.title }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{ enrollment.course.lessons.count }} lessons</p>
+                        
+                        <div class="mb-2">
+                            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                <div class="bg-accent h-2 rounded-full" style="width: {{ progress }}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ progress }}% complete</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs {% if enrollment.payment_status == 'free' %}bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300{% else %}bg-accent/20 text-accent{% endif %} px-2 py-1 rounded">
+                                {{ enrollment.payment_status|title }}
+                            </span>
+                            <span class="text-accent text-sm font-medium">
+                                Continue <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </a>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-book-open text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No courses yet</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">Start your learning journey by enrolling in a course.</p>
+                <a href="{% url 'course_list' %}" class="inline-block bg-accent text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+                    Browse Courses
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django LMS - Learning Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e3a5f',
+                        secondary: '#0f2744',
+                        accent: '#3b82f6',
+                    }
+                }
+            }
+        }
+        
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dark body { background-color: #0f172a; }
+        .dark .bg-white { background-color: #1e293b !important; }
+        .dark .bg-gray-50 { background-color: #0f172a !important; }
+        .dark .bg-gray-100 { background-color: #1e293b !important; }
+        .dark .bg-gray-200 { background-color: #334155 !important; }
+        .dark .bg-gray-800 { background-color: #1e293b !important; }
+        .dark .bg-gray-900 { background-color: #0f172a !important; }
+        .dark .text-gray-900 { color: #f1f5f9 !important; }
+        .dark .text-gray-800 { color: #e2e8f0 !important; }
+        .dark .text-gray-700 { color: #cbd5e1 !important; }
+        .dark .text-gray-600 { color: #94a3b8 !important; }
+        .dark .text-gray-500 { color: #64748b !important; }
+        .dark .text-gray-400 { color: #475569 !important; }
+        .dark .text-white { color: #f8fafc !important; }
+        .dark .border-gray-200 { border-color: #334155 !important; }
+        .dark .border-gray-700 { border-color: #334155 !important; }
+        .dark .hover\:bg-gray-100:hover { background-color: #334155 !important; }
+        .dark .hover\:bg-gray-50:hover { background-color: #1e293b !important; }
+        .dark .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3) !important; }
+        .dark .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4) !important; }
+        .dark .bg-indigo-600 { background-color: #3b82f6 !important; }
+        .dark .bg-indigo-700 { background-color: #2563eb !important; }
+        .dark .bg-indigo-100 { background-color: #1e3a5f !important; }
+        .dark .text-indigo-600 { color: #60a5fa !important; }
+        .dark .bg-red-100 { background-color: #7f1d1d !important; }
+        .dark .text-red-600 { color: #f87171 !important; }
+        .dark .bg-green-100 { background-color: #14532d !important; }
+        .dark .text-green-600 { color: #4ade80 !important; }
+        .dark .bg-yellow-100 { background-color: #713f12 !important; }
+        .dark .text-yellow-700 { color: #facc15 !important; }
+        .dark .bg-blue-100 { background-color: #1e3a5f !important; }
+        .dark .bg-purple-100 { background-color: #581c87 !important; }
+        .dark .bg-indigo-50 { background-color: #1e293b !important; }
+        .dark .dark\:text-white { color: #f8fafc !important; }
+        .dark .dark\:bg-gray-800 { background-color: #1e293b !important; }
+        .dark .dark\:border-gray-700 { border-color: #334155 !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col transition-colors duration-200">
+    <nav class="bg-gradient-to-r from-primary to-secondary shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-graduation-cap mr-2 text-accent"></i>
+                        <span class="hidden sm:inline">Django</span> LMS
+                    </a>
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
+                        <a href="{% url 'course_list' %}" class="text-gray-300 hover:text-white px-3 py-2 transition">Courses</a>
+                        {% if user.is_authenticated and user.profile.is_instructor %}
+                            <a href="{% url 'instructor_dashboard' %}" class="text-gray-300 hover:text-white px-3 py-2 transition">Instructor</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'cart_view' %}" class="relative text-gray-300 hover:text-white px-3 py-2 transition">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                            {% if user.cart.get_item_count > 0 %}
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                                    {{ user.cart.get_item_count }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <button id="theme-toggle" class="text-gray-300 hover:text-white px-3 py-2 transition">
+                            <i class="fas fa-moon text-lg dark:hidden"></i>
+                            <i class="fas fa-sun text-lg hidden dark:block"></i>
+                        </button>
+                        <div class="relative group">
+                            <button class="flex items-center text-gray-300 hover:text-white">
+                                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center text-white text-sm font-semibold mr-2">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <span class="hidden sm:inline">{{ user.username }}</span>
+                                <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 hidden group-hover:block z-50">
+                                <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-home mr-2"></i>Dashboard
+                                </a>
+                                <a href="{% url 'my_courses' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-book mr-2"></i>My Courses
+                                </a>
+                                <a href="{% url 'my_progress' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-chart-line mr-2"></i>My Progress
+                                </a>
+                                <a href="{% url 'cart_view' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Cart
+                                    {% if user.cart.get_item_count > 0 %}
+                                        <span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full ml-2">{{ user.cart.get_item_count }}</span>
+                                    {% endif %}
+                                </a>
+                                {% if user.profile.is_instructor %}
+                                    <a href="{% url 'instructor_dashboard' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                        <i class="fas fa-chalkboard-teacher mr-2"></i>Instructor Panel
+                                    </a>
+                                {% endif %}
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-user mr-2"></i>Profile
+                                </a>
+                                <hr class="my-2 border-gray-700">
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <button id="theme-toggle" class="text-gray-300 hover:text-white px-3 py-2 transition">
+                            <i class="fas fa-moon text-lg dark:hidden"></i>
+                            <i class="fas fa-sun text-lg hidden dark:block"></i>
+                        </button>
+                        <a href="{% url 'login' %}" class="text-gray-300 hover:text-white transition">Login</a>
+                        <a href="{% url 'register' %}" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 mt-4">
+            {% for message in messages %}
+                <div class="p-4 mb-2 rounded-lg border {% if message.tags == 'success' %}bg-green-100 text-green-700 border-green-300 dark:bg-green-900 dark:text-green-300 dark:border-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700 border-red-300 dark:bg-red-900 dark:text-red-300 dark:border-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900 dark:text-yellow-300 dark:border-yellow-700{% else %}bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gradient-to-r from-primary to-secondary text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4 flex items-center">
+                        <i class="fas fa-graduation-cap mr-2 text-accent"></i>Django LMS
+                    </h3>
+                    <p class="text-gray-400">Your gateway to online learning</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="{% url 'course_list' %}" class="hover:text-white transition">All Courses</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'dashboard' %}" class="hover:text-white transition">Dashboard</a></li>
+                            <li><a href="{% url 'my_courses' %}" class="hover:text-white transition">My Courses</a></li>
+                            <li><a href="{% url 'cart_view' %}" class="hover:text-white transition">Cart</a></li>
+                        {% else %}
+                            <li><a href="{% url 'register' %}" class="hover:text-white transition">Register</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <p class="text-gray-400">support@django-lms.com</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-facebook text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-youtube text-xl"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-github text-xl"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; {% now "Y" %} Django LMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">All Courses</h1>
+        
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'course_list' %}" class="px-4 py-2 rounded-lg transition {% if not selected_category %}bg-accent text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
+                All
+            </a>
+            {% for category in categories %}
+                <a href="?category={{ category.slug }}" class="px-4 py-2 rounded-lg transition {% if selected_category == category.slug %}bg-accent text-white{% else %}bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    {% if courses %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for course in courses %}
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-200 dark:border-gray-700">
+                    {% if course.thumbnail %}
+                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                        <div class="w-full h-48 bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                            <i class="fas fa-image text-4xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                    <div class="p-6">
+                        <span class="text-xs font-semibold text-accent uppercase">{{ course.category.name|default:"General" }}</span>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-2 mb-2 line-clamp-2">{{ course.title }}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">{{ course.short_description }}</p>
+                        <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                            <span><i class="fas fa-book mr-1"></i> {{ course.get_lesson_count }} lessons</span>
+                            <span><i class="fas fa-users mr-1"></i> {{ course.get_enrolled_count }} enrolled</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <span class="text-lg font-bold {% if course.is_free %}text-green-500{% else %}text-accent{% endif %}">
+                                {{ course.get_display_price }}
+                            </span>
+                            {% if course.is_free %}
+                                <a href="{% url 'enroll_free_course' course.id %}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm font-medium">
+                                    Enroll Free
+                                </a>
+                            {% else %}
+                                <button onclick="addToCart({{ course.id }}, this)" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm font-medium">
+                                    <i class="fas fa-cart-plus mr-1"></i>Add to Cart
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        {% if courses.paginator.num_pages > 1 %}
+            <div class="flex justify-center mt-8">
+                <nav class="flex space-x-2">
+                    {% if courses.has_previous %}
+                        <a href="?page={{ courses.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition">Previous</a>
+                    {% endif %}
+                    <span class="px-4 py-2 text-gray-700 dark:text-gray-300">Page {{ courses.number }} of {{ courses.paginator.num_pages }}</span>
+                    {% if courses.has_next %}
+                        <a href="?page={{ courses.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition">Next</a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <i class="fas fa-search text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No courses found</h2>
+            <p class="text-gray-600 dark:text-gray-400">Try selecting a different category.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function addToCart(courseId, btn) {
+    fetch('/cart/add/' + courseId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Added';
+            btn.classList.remove('bg-accent', 'hover:bg-blue-600');
+            btn.classList.add('bg-green-500', 'hover:bg-green-600');
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to add to cart');
+        }
+    })
+    .catch(error => {
+        alert('Please login to add courses to cart');
+        window.location.href = '/accounts/login/';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }} - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-80 object-cover rounded-xl mb-6 shadow-lg">
+            {% else %}
+                <div class="w-full h-80 bg-gradient-to-br from-primary to-secondary rounded-xl mb-6 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-image text-6xl text-gray-400"></i>
+                </div>
+            {% endif %}
+            
+            <div class="flex items-center gap-4 mb-4">
+                <span class="px-3 py-1 bg-accent text-white text-sm font-medium rounded-full">{{ course.category.name|default:"General" }}</span>
+                {% if course.is_published %}
+                    <span class="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-sm font-medium rounded-full">
+                        <i class="fas fa-check-circle mr-1"></i>Published
+                    </span>
+                {% endif %}
+            </div>
+            
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">{{ course.title }}</h1>
+            
+            <div class="flex flex-wrap items-center gap-6 text-gray-600 dark:text-gray-400 mb-8">
+                <span class="flex items-center"><i class="fas fa-book mr-2 text-accent"></i>{{ course.get_lesson_count }} lessons</span>
+                <span class="flex items-center"><i class="fas fa-users mr-2 text-accent"></i>{{ course.get_enrolled_count }} students</span>
+                <span class="flex items-center"><i class="fas fa-user-tie mr-2 text-accent"></i>{{ course.instructor.user.get_full_name|default:course.instructor.user.username }}</span>
+                {% if course.get_average_rating > 0 %}
+                <span class="flex items-center">
+                    <i class="fas fa-star mr-2 text-yellow-400"></i>
+                    {{ course.get_average_rating }} ({{ course.get_review_count }} reviews)
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">About this course</h2>
+                <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">{{ course.description }}</p>
+            </div>
+            
+            {% if lessons %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Course Content</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">{{ lessons.count }} lessons</p>
+                <div class="space-y-3">
+                    {% for lesson in lessons %}
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg flex items-center gap-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition cursor-pointer">
+                            <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white font-semibold">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-900 dark:text-white">{{ lesson.title }}</h3>
+                            </div>
+                            {% if lesson.video_url %}
+                                <span class="text-green-500"><i class="fas fa-play-circle"></i></span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if reviews or user_review %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Student Reviews</h2>
+                    {% if is_enrolled and not user_review %}
+                        <a href="{% url 'add_review' course.id %}" class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-blue-600 transition">
+                            <i class="fas fa-pen mr-2"></i>Write a Review
+                        </a>
+                    {% elif user_review %}
+                        <a href="{% url 'add_review' course.id %}" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                            <i class="fas fa-edit mr-2"></i>Edit Your Review
+                        </a>
+                    {% endif %}
+                </div>
+                
+                {% if course.get_average_rating > 0 %}
+                <div class="flex items-center gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-5xl font-bold text-gray-900 dark:text-white">{{ course.get_average_rating }}</div>
+                    <div>
+                        <div class="flex items-center gap-1 mb-1">
+                            {% with ''|center:5 as range %}
+                            {% for _ in range %}
+                                <i class="fas fa-star {% if forloop.counter <= course.get_average_rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                            {% endfor %}
+                            {% endwith %}
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">Based on {{ course.get_review_count }} reviews</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="space-y-4">
+                    {% for review in reviews %}
+                    <div class="p-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white font-semibold">
+                                    {{ review.student.user.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ review.student.user.get_full_name|default:review.student.user.username }}</p>
+                                    <div class="flex items-center gap-2">
+                                        {% with ''|center:5 as range %}
+                                        {% for _ in range %}
+                                            <i class="fas fa-star text-xs {% if forloop.counter <= review.rating %}text-yellow-400{% else %}text-gray-300{% endif %}"></i>
+                                        {% endfor %}
+                                        {% endwith %}
+                                        <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">{{ review.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if review.student == user.profile %}
+                                <form action="{% url 'delete_review' review.id %}" method="POST" onsubmit="return confirm('Delete your review?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        {% if review.comment %}
+                        <p class="text-gray-700 dark:text-gray-300">{{ review.comment }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% elif is_enrolled %}
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-8 border border-gray-200 dark:border-gray-700 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Be the first to review!</h2>
+                <a href="{% url 'add_review' course.id %}" class="inline-block px-6 py-3 bg-accent text-white rounded-lg hover:bg-blue-600 transition">
+                    <i class="fas fa-pen mr-2"></i>Write a Review
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 sticky top-4">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover rounded-lg mb-4">
+                {% else %}
+                    <div class="w-full h-48 bg-gradient-to-br from-primary to-secondary rounded-lg mb-4 flex items-center justify-center">
+                        <i class="fas fa-image text-4xl text-gray-400"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="text-4xl font-bold mb-6 {% if course.is_free %}text-green-500{% else %}text-accent{% endif %}">
+                    {{ course.get_display_price }}
+                </div>
+                
+                {% if user.is_authenticated %}
+                    {% if is_enrolled %}
+                        <a href="{% url 'course_learn' course.slug %}" class="block w-full bg-green-500 text-white text-center py-4 rounded-lg font-semibold hover:bg-green-600 transition mb-3">
+                            <i class="fas fa-play mr-2"></i>Continue Learning
+                        </a>
+                    {% elif course.is_free %}
+                        <a href="{% url 'enroll_free_course' course.id %}" class="block w-full bg-green-500 text-white text-center py-4 rounded-lg font-semibold hover:bg-green-600 transition mb-3">
+                            <i class="fas fa-gift mr-2"></i>Enroll for Free
+                        </a>
+                    {% else %}
+                        <button id="add-to-cart-btn" data-course-id="{{ course.id }}" class="block w-full bg-accent text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-600 transition mb-3">
+                            <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                        </button>
+                        <a href="{% url 'checkout' course.id %}" class="block w-full bg-gray-900 dark:bg-gray-700 text-white text-center py-4 rounded-lg font-semibold hover:bg-gray-800 dark:hover:bg-gray-600 transition">
+                            <i class="fas fa-bolt mr-2"></i>Buy Now
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="block w-full bg-accent text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-600 transition">
+                        {% if course.is_free %}<i class="fas fa-user mr-2"></i>Login to Enroll{% else %}<i class="fas fa-user mr-2"></i>Login to Buy{% endif %}
+                    </a>
+                {% endif %}
+                
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-4">This course includes:</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-video w-5 text-accent mr-3"></i>
+                            <span>{{ course.get_lesson_count }} video lessons</span>
+                        </li>
+                        <li class="flex items-center text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-file-alt w-5 text-accent mr-3"></i>
+                            <span>Downloadable resources</span>
+                        </li>
+                        <li class="flex items-center text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-infinity w-5 text-accent mr-3"></i>
+                            <span>Lifetime access</span>
+                        </li>
+                        <li class="flex items-center text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-mobile-alt w-5 text-accent mr-3"></i>
+                            <span>Access on mobile</span>
+                        </li>
+                        <li class="flex items-center text-gray-700 dark:text-gray-300">
+                            <i class="fas fa-certificate w-5 text-accent mr-3"></i>
+                            <span>Certificate of completion</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated and not is_enrolled and not course.is_free %}
+<script>
+document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+    const btn = this;
+    const courseId = btn.dataset.courseId;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+    
+    fetch('/cart/add/' + courseId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Added to Cart';
+            btn.classList.remove('bg-accent', 'hover:bg-blue-600');
+            btn.classList.add('bg-green-500', 'hover:bg-green-600');
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to add to cart');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-cart-plus mr-2"></i>Add to Cart';
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-cart-plus mr-2"></i>Add to Cart';
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

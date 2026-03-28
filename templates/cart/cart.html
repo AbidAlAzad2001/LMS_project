@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - Django LMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+            <i class="fas fa-shopping-cart text-2xl text-white"></i>
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Shopping Cart</h1>
+            <p class="text-gray-600 dark:text-gray-400">Review your selected courses</p>
+        </div>
+    </div>
+    
+    {% if items %}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div class="p-6">
+                {% for item in items %}
+                <div class="flex items-center justify-between py-6 {% if not forloop.last %}border-b border-gray-200 dark:border-gray-700{% endif %}">
+                    <div class="flex items-center">
+                        {% if item.course.thumbnail %}
+                            <img src="{{ item.course.thumbnail.url }}" alt="{{ item.course.title }}" class="w-24 h-24 object-cover rounded-xl">
+                        {% else %}
+                            <div class="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-image text-2xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        <div class="ml-4">
+                            <h3 class="font-semibold text-gray-900 dark:text-white text-lg">{{ item.course.title }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.course.instructor.user.get_full_name|default:item.course.instructor.user.username }}</p>
+                            <span class="text-xs text-gray-400 dark:text-gray-500">{{ item.added_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        {% if item.course.is_free %}
+                            <span class="text-green-500 font-bold text-lg">Free</span>
+                        {% else %}
+                            <span class="font-bold text-lg text-accent">৳{{ item.course.price }}</span>
+                        {% endif %}
+                        <a href="{% url 'remove_from_cart' item.course.id %}" class="text-red-500 hover:text-red-700 transition p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg" title="Remove">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg">Total ({{ items.count }} course{% if items.count > 1 %}s{% endif %})</span>
+                    <span class="text-3xl font-bold">৳{{ total }}</span>
+                </div>
+                
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_method" value="card" class="sr-only peer" checked>
+                        <div class="border-2 border-white/30 peer-checked:border-white rounded-lg p-2 text-center transition text-sm">
+                            <i class="fas fa-credit-card mb-1"></i>
+                            <p>Card</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_method" value="bkash" class="sr-only peer">
+                        <div class="border-2 border-white/30 peer-checked:border-pink-400 rounded-lg p-2 text-center transition text-sm">
+                            <p class="font-bold">bKash</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_method" value="nogod" class="sr-only peer">
+                        <div class="border-2 border-white/30 peer-checked:border-orange-400 rounded-lg p-2 text-center transition text-sm">
+                            <p class="font-bold">Nogod</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_method" value="rocket" class="sr-only peer">
+                        <div class="border-2 border-white/30 peer-checked:border-purple-400 rounded-lg p-2 text-center transition text-sm">
+                            <p class="font-bold">Rocket</p>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-between gap-4">
+                    <a href="{% url 'clear_cart' %}" class="px-6 py-3 border-2 border-white text-white rounded-xl hover:bg-white hover:text-primary transition text-center font-medium">
+                        <i class="fas fa-trash-alt mr-2"></i>Clear Cart
+                    </a>
+                    <button id="checkout-btn" class="flex-1 bg-white text-primary py-3 rounded-xl font-semibold hover:bg-gray-100 transition">
+                        <i class="fas fa-lock mr-2"></i>Proceed to Checkout
+                    </button>
+                </div>
+                
+                <p class="text-center text-white/80 text-sm mt-4">
+                    <i class="fas fa-shield-alt mr-1"></i> Demo Mode: Use OTP <code class="bg-white/20 px-1 rounded">123456</code> for mobile payments
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 text-center border border-gray-200 dark:border-gray-700">
+            <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-shopping-cart text-5xl text-gray-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Browse our courses and add some to your cart!</p>
+            <a href="{% url 'course_list' %}" class="inline-block bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-xl hover:opacity-90 transition font-medium">
+                <i class="fas fa-compass mr-2"></i>Browse Courses
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% if items %}
+<script>
+document.getElementById('checkout-btn').addEventListener('click', function() {
+    const btn = this;
+    const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+    
+    const formData = new FormData();
+    formData.append('payment_method', paymentMethod);
+    
+    fetch('{% url "cart_checkout" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.payment_url;
+        } else {
+            alert('Checkout failed: ' + data.error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Proceed to Checkout';
+        }
+    })
+    .catch(error => {
+        alert('Error: ' + error);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock mr-2"></i>Proceed to Checkout';
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
