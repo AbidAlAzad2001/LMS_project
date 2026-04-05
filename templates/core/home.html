@@ -3,12 +3,16 @@
 {% block title %}Home - LearnSphere{% endblock %}
 
 {% block content %}
-<section class="bg-gradient-to-r from-primary via-secondary to-primary text-white">
-    <div class="max-w-7xl mx-auto px-4 py-20">
-        <div class="text-center">
+<section class="bg-gradient-to-r from-primary via-secondary to-primary text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-48 h-48 bg-accent rounded-full blur-3xl"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 py-20 relative">
+        <div class="text-center" data-aos="fade-up" data-aos-delay="100">
             <h1 class="text-4xl md:text-5xl font-bold mb-6">Learn Something New Today</h1>
             <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Discover courses taught by expert instructors and start your learning journey today.</p>
-            <div class="flex justify-center gap-4">
+            <div class="flex justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
                 <a href="{% url 'course_list' %}" class="bg-accent text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition transform hover:scale-105">
                     <i class="fas fa-play mr-2"></i>Browse Courses
                 </a>
@@ -24,14 +28,14 @@
 
 <section class="max-w-7xl mx-auto px-4 py-16">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Featured Courses</h2>
-        <a href="{% url 'course_list' %}" class="text-accent hover:text-blue-400 font-medium transition">View All <i class="fas fa-arrow-right ml-1"></i></a>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white" data-aos="fade-right">Featured Courses</h2>
+        <a href="{% url 'course_list' %}" class="text-accent hover:text-blue-400 font-medium transition" data-aos="fade-left">View All <i class="fas fa-arrow-right ml-1"></i></a>
     </div>
     
     {% if featured_courses %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for course in featured_courses %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-200 dark:border-gray-700">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-200 dark:border-gray-700" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
                     {% if course.thumbnail %}
                         <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="w-full h-48 object-cover">
                     {% else %}
@@ -56,7 +60,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700" data-aos="fade-up">
             <i class="fas fa-book-open text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
             <p class="text-gray-600 dark:text-gray-400">No courses available yet. Check back soon!</p>
         </div>
@@ -66,10 +70,10 @@
 {% if categories %}
 <section class="bg-gray-100 dark:bg-gray-900 py-16">
     <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Browse by Category</h2>
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center" data-aos="fade-up">Browse by Category</h2>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             {% for category in categories %}
-                <a href="{% url 'course_list' %}?category={{ category.slug }}" class="bg-white dark:bg-gray-800 p-6 rounded-xl text-center hover:shadow-lg transition transform hover:-translate-y-1 border border-gray-200 dark:border-gray-700">
+                <a href="{% url 'course_list' %}?category={{ category.slug }}" class="bg-white dark:bg-gray-800 p-6 rounded-xl text-center hover:shadow-lg transition transform hover:-translate-y-1 border border-gray-200 dark:border-gray-700" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:100 }}">
                     <div class="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mx-auto mb-3">
                         <i class="fas fa-folder text-white"></i>
                     </div>
@@ -82,23 +86,23 @@
 {% endif %}
 
 <section class="max-w-7xl mx-auto px-4 py-16">
-    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Why Choose LearnSphere?</h2>
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center" data-aos="fade-up">Why Choose LearnSphere?</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700" data-aos="fade-up" data-aos-delay="100">
             <div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-video text-white text-2xl"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">HD Video Lessons</h3>
             <p class="text-gray-600 dark:text-gray-400">Learn from high-quality video content created by expert instructors.</p>
         </div>
-        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700" data-aos="fade-up" data-aos-delay="200">
             <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-certificate text-white text-2xl"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Certificates</h3>
             <p class="text-gray-600 dark:text-gray-400">Earn certificates upon course completion to showcase your skills.</p>
         </div>
-        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="text-center p-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700" data-aos="fade-up" data-aos-delay="300">
             <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i class="fas fa-infinity text-white text-2xl"></i>
             </div>

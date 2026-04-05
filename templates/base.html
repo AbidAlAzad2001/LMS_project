@@ -24,6 +24,7 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
         .dark body { background-color: #0f172a; }
         .dark .bg-white { background-color: #1e293b !important; }
@@ -205,6 +206,14 @@
             } else {
                 localStorage.setItem('theme', 'light');
             }
+        });
+    </script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
         });
     </script>
 </body>
