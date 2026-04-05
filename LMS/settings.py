@@ -41,7 +41,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'lms_ai.urls'
+ROOT_URLCONF = 'LMS.urls'
 
 TEMPLATES = [
     {
@@ -59,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'lms_ai.wsgi.application'
+WSGI_APPLICATION = 'LMS.wsgi.application'
 
 
 DATABASES = {

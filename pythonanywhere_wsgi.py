@@ -9,7 +9,7 @@ import os
 import sys
 
 # Add your project directory to the path
-project_home = os.path.expanduser('~/lms_ai')
+project_home = os.path.expanduser('~/LMS')
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
@@ -17,7 +17,7 @@ if project_home not in sys.path:
 os.chdir(project_home)
 
 # Set the settings module
-os.environ['DJANGO_SETTINGS_MODULE'] = 'lms_ai.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'LMS.settings'
 
 # Import Django's WSGI handler
 from django.core.wsgi import get_wsgi_application

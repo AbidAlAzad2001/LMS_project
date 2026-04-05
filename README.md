@@ -86,7 +86,7 @@ Upload your project to PythonAnywhere via:
 ### Step 2: Set Up Virtual Environment
 
 ```bash
-cd ~/lms_ai
+cd ~/LMS
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
@@ -124,11 +124,11 @@ Go to **Web** tab → Edit WSGI configuration file:
 import os
 import sys
 
-path = '/home/YOUR_USERNAME/lms_ai'
+path = '/home/YOUR_USERNAME/LMS'
 if path not in sys.path:
     sys.path.append(path)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'lms_ai.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'LMS.settings'
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
@@ -137,8 +137,8 @@ application = get_wsgi_application()
 ### Step 6: Configure Static Files
 
 In the **Web** tab, add static files:
-- URL: `/static/` → Directory: `/home/YOUR_USERNAME/lms_ai/staticfiles`
-- URL: `/media/` → Directory: `/home/YOUR_USERNAME/lms_ai/media`
+- URL: `/static/` → Directory: `/home/YOUR_USERNAME/LMS/staticfiles`
+- URL: `/media/` → Directory: `/home/YOUR_USERNAME/LMS/media`
 
 ### Step 7: Reload Web App
 
@@ -252,8 +252,8 @@ Authorization: Token your-token-here
 ## Project Structure
 
 ```
-lms_ai/
-├── lms_ai/          # Django project settings
+LMS/
+├── LMS/          # Django project settings
 ├── accounts/         # User authentication and profiles
 ├── courses/          # Course, lesson, enrollment models
 ├── payments/         # SSLCommerz payment integration
